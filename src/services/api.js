@@ -1,9 +1,13 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// Base URL - Your Spring Boot backend
-// const API_BASE_URL = 'http://localhost:8080';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+// ================================
+// 🌐 Backend URL for Production
+// ================================
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  'https://shop-ease-backend-production.up.railway.app'; 
+// 🔥 Replace with your exact Railway backend domain
 
 // Create axios instance
 const api = axios.create({
@@ -11,54 +15,46 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 second timeout
+  timeout: 10000, // 10 seconds
 });
 
-// Request interceptor - Add token to every request
+// =================================
+// 🔐 Request Interceptor
+// Adds JWT token automatically
+// =================================
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
-  (error) => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor - Handle errors globally
+// =================================
+// ❗ Response Interceptor
+// Handles 401 (Expired session)
+// =================================
 api.interceptors.response.use(
-  (response) => {
-    // ✅ Successfully handle ALL 2xx responses (200, 201, 204, etc.)
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('API Error:', error);
-
     if (error.response) {
-      // Server responded with error status
       const status = error.response.status;
 
       if (status === 401) {
-        // Unauthorized - clear token and redirect to login
+        // Token expired
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        
-        // ✅ Avoid redirect loop - only redirect if not already on login page
+
         if (window.location.pathname !== '/login') {
           toast.error('Session expired. Please login again.');
           window.location.href = '/login';
         }
       }
-    } else if (error.request) {
-      // Request made but no response received
-      console.error('No response received:', error.request);
-    } else {
-      // Something else happened
-      console.error('Error:', error.message);
     }
 
     return Promise.reject(error);
