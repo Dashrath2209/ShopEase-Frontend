@@ -303,7 +303,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 For any queries or suggestions:
-- Email: your.email@example.com
+- Email: dyadavdv2020@gmail.com
 - LinkedIn: [Dasharath Yadav](https://www.linkedin.com/in/dasharath-yadav)
 
 ---
